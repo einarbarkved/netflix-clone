@@ -1,3 +1,4 @@
+import Navbar from "@/components/Navbar";
 import { NextPageContext } from "next";
 import { getSession } from "next-auth/react";
 
@@ -19,5 +20,9 @@ export async function getServerSideProps(context: NextPageContext) {
 }
 
 export default function Home() {
-  return <></>;
+  return (
+    <>
+      <Navbar />
+    </>
+  );
 }
