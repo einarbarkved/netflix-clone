@@ -7,8 +7,7 @@ import serverAuth from "@/lib/serverAuth";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method === "POST") {
-      const { currentUser } = await serverAuth(req);
-      console.log(currentUser);
+      const { currentUser } = await serverAuth(req, res);
 
       const { movieId } = req.body;
 
@@ -18,7 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       });
 
-      if (!existingMovie) throw new Error("Invalid ID");
+      if (!existingMovie) {
+        throw new Error("Invalid ID");
+      }
 
       const user = await prismadb.user.update({
         where: {
@@ -35,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === "DELETE") {
-      const { currentUser } = await serverAuth(req);
+      const { currentUser } = await serverAuth(req, res);
 
       const { movieId } = req.body;
 
@@ -45,16 +46,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       });
 
-      if (!existingMovie) throw new Error("Invalid Id");
+      if (!existingMovie) {
+        throw new Error("Invalid ID");
+      }
 
-      const updatedFacoriteIds = without(currentUser.favoriteIds, movieId);
+      const updatedFavoriteIds = without(currentUser.favoriteIds, movieId);
 
       const updatedUser = await prismadb.user.update({
         where: {
           email: currentUser.email || "",
         },
         data: {
-          favoriteIds: updatedFacoriteIds,
+          favoriteIds: updatedFavoriteIds,
         },
       });
 
@@ -64,6 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).end();
   } catch (error) {
     console.log(error);
-    return res.status(400).end();
+
+    return res.status(500).end();
   }
 }
